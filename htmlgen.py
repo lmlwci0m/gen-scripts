@@ -3,63 +3,74 @@
 import re
 
 
-def get_pattern_matcher():
-    return re.compile("\$\{\w+\}")
+class SimpleTemplate(dict):
 
+    def get_pattern_matcher(self):
+        return re.compile("\$\{(?:f:)?\w+\}")
 
-def create_html5_page(body="Test body", title="Page test title", output="test.html"):
-    """Generate base html 5 page.
+    def create_page(self, input="base_template.html", output="test.html", parent=None):
+        """Make transformation from input to output.
     
     
-    """
+        """
     
-    with open("base_template.html", "r", encoding="utf-8") as t:
+        pm = self.get_pattern_matcher()
     
-        with open(output, "w", encoding="utf-8") as f:
+        if parent == None:
+            with open(output, "w", encoding="utf-8") as f:
+                with open(input, "r", encoding="utf-8") as t:
             
-            pm = get_pattern_matcher()
-            
-            line = t.readline()
-            while line != '':
-            
-                #elems = [x[2:-1] for x in pm.findall(line)]
-            
-                
-            
-                f.write(pm.sub(repl, line))
-            
-                #if 'title' in elems:
-                #    f.write(line.format(title))
-                    
-                #elif 'body' in elems:
-                #    f.write(line.format(None, body))
-                    
-                #else:
-                #    f.write(line)
-                    
-                line = t.readline()
-                
-def repl(match):
-    if match.group() == '${title}':
-        return "Page test title"
-    elif match.group() == '${title2}':
-        return "Test body 2"
-    elif match.group() == '${body}':
-        return "Test body"
+                    def repl(match):
+                        string = match.group()[2:-1] # Rule: ${var}
+                        
+                        print("Found: {0:s}".format(string))
+                        
+                        if ":" in string:
+                            filename = string.split(":")[1] + ".html"
+                            self.create_page(filename, output=None, parent=f)
         
-    return ""
+                        elif string in self:
+                            return self[string]
+            
+                        return ""
+            
+                    line = t.readline()
+                    while line != '':
+                        #elems = [x[2:-1] for x in pm.findall(line)]
+                        subline = pm.sub(repl, line)
+                        if (subline != ""):
+                            f.write(subline)
+                        line = t.readline()
+            
+        else:
+        
+            with open(input, "r", encoding="utf-8") as t:
+            
+                def repl(match):
+                    string = match.group()[2:-1] # Rule: ${var}
+                    
+                    print("Found: {0:s}".format(string))
+                    
+                    if ":" in string:
+                        filename = string.split(":")[1] + ".html"
+                        self.create_page(filename, output=None, parent=parent)
+        
+                    elif string in self:
+                        return self[string]
+            
+                    return ""
+            
+                line = t.readline()
+                while line != '':
+                    #elems = [x[2:-1] for x in pm.findall(line)]
+                    subline = pm.sub(repl, line)
+                    if (subline != ""):
+                        parent.write(subline)
+                    line = t.readline()
 
 
 if __name__ == '__main__':
     
-    create_html5_page()
+    e = SimpleTemplate(title="Pippo", body='Pluto', header='Header', par="Ti si ma")
     
-    #pattern = "\$\{\w+\}"
-    #c = re.compile(pattern)
-    #elems = []
-    #with open("base_template.html", "r", encoding="utf-8") as t:
-    #    line = t.readline()
-    #    while line != '':
-    #        elems += c.findall(line)
-    #        line = t.readline()
-    #print(elems)
+    e.create_page()
