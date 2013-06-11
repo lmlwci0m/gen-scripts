@@ -9,7 +9,7 @@ DEFAULT_ENCODING = "utf-8"
 def pre_repl(self, p, match):
     string = match.group()[2:-1] # Rule: ${var}
     
-    print("Found: {0:s}".format(string))
+    #print("Found: {0:s}".format(string))
     
     if ":" in string:
         filename = string.split(":")[1] + ".html"
@@ -26,20 +26,24 @@ class SimpleTemplate(dict):
     def __get_pattern_matcher(self):
         return re.compile("\$\{(?:f:)?\w+\}")
         
+    def __get_include_pattern_matcher(self):
+        return re.compile("\$\{f:\w+\}")
+        
     def __process_template_loop(self, pm, repl, t, dest):
         """Managing read/write cycles."""
         
         line = t.readline()
         while line != '':
-        
-            subline = pm.sub(repl, line) # Possible recursion here
             
-            if (subline != ""):
-                
-                # Here no recursion, variable value found in dictionary 
-                
-                dest.write(subline)
-                
+            elems = self.__get_include_pattern_matcher().split(line)
+            patts = self.__get_include_pattern_matcher().findall(line)
+            if len(elems) > 1:
+                for x in range(0, len(elems)):
+                    dest.write(pm.sub(repl, elems[x]))
+                    if x < len(elems) - 1:
+                        dest.write(pm.sub(repl, patts[x]))
+            else:
+                dest.write(pm.sub(repl, line)) # TODO: ERROR ERROR ERROR
             line = t.readline()
             
     def __process_template(self, input, pm, p):
@@ -75,9 +79,16 @@ class SimpleTemplate(dict):
             self.__process_template(input, pm, parent)
             
 
-
 if __name__ == '__main__':
     
-    e = SimpleTemplate(title="Pippo", body='Pluto', header='Header', par="Auuuuu")
+    e = SimpleTemplate(
+        title="Pippo", 
+        body='Pluto', 
+        header='Template generator', 
+        par="This is a test",
+        secpar="This is a second test",
+        font="tahoma",
+        fontsize="11px"
+        )
     
     e.create_page(input="base_template.html", output="test.html")
