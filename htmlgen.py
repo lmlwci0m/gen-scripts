@@ -23,27 +23,54 @@ def pre_repl(self, p, match):
 
 class SimpleTemplate(dict):
 
+    pattern_matcher = None
+    include_patter_matcher = None
+
     def __get_pattern_matcher(self):
-        return re.compile("\$\{(?:f:)?\w+\}")
+        if self.pattern_matcher is None:
+            self.pattern_matcher = re.compile("\$\{(?:f:)?\w+\}")
+        return self.pattern_matcher
         
     def __get_include_pattern_matcher(self):
-        return re.compile("\$\{f:\w+\}")
+        if self.include_patter_matcher is None:
+            self.include_patter_matcher = re.compile("\$\{f:\w+\}")
+        return self.include_patter_matcher
         
     def __process_template_loop(self, pm, repl, t, dest):
-        """Managing read/write cycles."""
+        """Managing read/write cycles.
+        
+        pm: tags pattern
+        repl: replacement function 
+        t: input template file object
+        dest: output file object
+        """
+        
+        ipm = self.__get_include_pattern_matcher()
+        do_replace = partial(pm.sub, repl)
+        do_write = dest.write
         
         line = t.readline()
         while line != '':
             
-            elems = self.__get_include_pattern_matcher().split(line)
-            patts = self.__get_include_pattern_matcher().findall(line)
+            # Check include tag elements
+            elems, patts = ipm.split(line), ipm.findall(line)
+            
             if len(elems) > 1:
+            
+                # Include tags found: split and process sequentially
+                # due to missing process of file tag's previous sections
+            
                 for x in range(0, len(elems)):
-                    dest.write(pm.sub(repl, elems[x]))
+                    do_write(do_replace(elems[x]))
                     if x < len(elems) - 1:
-                        dest.write(pm.sub(repl, patts[x]))
+                        do_write(do_replace(patts[x]))
+                        
             else:
-                dest.write(pm.sub(repl, line)) # TODO: ERROR ERROR ERROR
+            
+                # No file tags: process entire line
+            
+                dest.write(do_replace(line)) # TODO: ERROR ERROR ERROR
+            
             line = t.readline()
             
     def __process_template(self, input, pm, p):
@@ -52,7 +79,7 @@ class SimpleTemplate(dict):
         with open(input, "r", encoding=DEFAULT_ENCODING) as t:
             repl = partial(pre_repl, self, p)
             self.__process_template_loop(pm, repl, t, p)
-            
+                    
     def create_page(self, input="base_template.html", output="test.html", parent=None):
         """Make transformation from input to output.
     
