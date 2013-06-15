@@ -1,29 +1,62 @@
 
 CHSET = 'qwertyuiopasdf1029384756ghjklzxcvbnmMZNXBCVLAKSJDHFGPQOWIEURYT'
 
+
+def tocharcode(cs):
+    """Util for conversion of a string to character code."""
+    return [ord(x) for x in cs]
     
+
 class Encoder(object):
-    """Permutation example. Key can be used for cryptographic tests."""
+
+    def function_closure(self, function_list, origin):
+        destination = origin
+        for index, func in enumerate(function_list):
+            destination = func(destination)
+        return destination
+        
 
     def __init__(self, cs=CHSET):
-        self.key = [ord(x) for x in cs]
+        """The character set is the seed for the key."""
         
-    def __pre_enc(self, m):
-        return [ord(x) - 97 for x in m]
+        self.key = tocharcode(cs)
         
-    def __pre_dec(self, c):
-        return [self.key.index(ord(x)) for x in c]
+        self.enc_steps = [
+            ord,
+            lambda x: x - 97,
+            lambda x: self.key[x],
+            chr,
+        ]
+        self.dec_steps = [
+            ord,
+            self.key.index,
+            lambda x: x + 97,
+            chr,
+        ]
         
     def enc(self, m):
-        """Encoding function."""
-        
-        num = self.__pre_enc(m)
-        c = "".join([chr(self.key[x]) for x in num])
-        return c
     
-    def dec(self, c):
-        """Decoding function."""
+        closure = self.function_closure
+        seq = self.enc_steps
+    
+        return "".join([closure(seq, x) for x in m])
         
-        num = self.__pre_dec(c)
-        m = "".join([chr(x + 97) for x in num])
-        return m
+    def dec(self, c):
+        
+        closure = self.function_closure
+        seq = self.dec_steps
+    
+        return "".join([closure(seq, x) for x in c])
+        
+    def basic_reverse(self, message):
+        """Revert a message string."""
+    
+        #i = len(message) - 1
+        tr = ""
+        #while i >= 0:
+        #    tr += message[i]
+        #    i -= 1
+        for c in message:
+            tr = c + tr
+        return tr
+    
