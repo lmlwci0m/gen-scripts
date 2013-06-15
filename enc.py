@@ -12,33 +12,33 @@ def caesar_enc(key):
     return {True: lambda x: x + key, False: lambda x: x - key}
     
     
-def define_function_closure(idiom=0):
+def define_function_composition(idiom=0):
     """Function generator for """
     
     if idiom == 1:
     
-        def function_closure(self, function_list, origin):
+        def function_composition(self, function_list, origin):
             destination = origin
             for index, func in enumerate(function_list):
                 destination = func(destination)
         
             return destination
         
-        return function_closure
+        return function_composition
     
     elif idiom == 2:
     
-        def function_closure(self, function_list, origin):
+        def function_composition(self, function_list, origin):
             destination = reduce(lambda x, y: y(x), function_list, origin)
             return destination
             
-        return function_closure
+        return function_composition
             
     else:
     
-        function_closure = partial(reduce, lambda x, y: y(x))
+        function_composition = partial(reduce, lambda x, y: y(x))
         
-        return function_closure
+        return function_composition
 
 
 class Encoder(object):
@@ -57,32 +57,32 @@ class Encoder(object):
         
         self.key = tocharcode(cs)
         
-        self.enc_steps = [
+        self.enc_steps = (
             ord,
             lambda x: x - 97,
             lambda x: self.key[x],
             chr,
-        ]
-        self.dec_steps = [
+        )
+        self.dec_steps = (
             ord,
             self.key.index,
             lambda x: x + 97,
             chr,
-        ]
+        )
         
-        self.closure = define_function_closure()
+        self.transform = define_function_composition()
         
     def enc(self, m):
     
-        closure, seq = self.closure, self.enc_steps
+        transform, seq = self.transform, self.enc_steps
     
-        return "".join([closure(seq, x) for x in m])
+        return "".join([transform(seq, x) for x in m])
         
     def dec(self, c):
         
-        closure, seq = self.closure, self.dec_steps
+        transform, seq = self.transform, self.dec_steps
     
-        return "".join([closure(seq, x) for x in c])
+        return "".join([transform(seq, x) for x in c])
         
     def basic_reverse(self, message):
         """Revert a message string."""
