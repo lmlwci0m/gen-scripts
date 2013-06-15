@@ -41,5 +41,13 @@ if __name__ == '__main__':
      
         back = e.basic_reverse(tr)
             
-        #print(back)
+        print(back)
+        
+        tr = e.caesar(message)
+     
+        back1 = e.caesar(tr, encrypt=False)
+            
+        print(back1)
+        
+        print(back == back1)
         
