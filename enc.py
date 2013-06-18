@@ -2,6 +2,8 @@ from functools import reduce
 from functools import partial
 CHSET = 'qwertyuiopasdf1029384756ghjklzxcvbnmMZNXBCVLAKSJDHFGPQOWIEURYT'
 
+DEF_LETTERS = '\|!"£$%&/()=?^\'ì,.-;:_ABCDEFGHIJKLMNOPQRSTUVWXYZ' + \
+               'abcdefghijklmnopqrstuvwxyz0123456789'
 
 def tocharcode(cs):
     """Util for conversion of a string to character code."""
@@ -94,8 +96,7 @@ class Encoder(object):
         return tr
         
     def caesar(self, message="Secret message", key=13, encrypt=True,
-               letters='\|!"£$%&/()=?^\'ì,.-;:_ABCDEFGHIJKLMNOPQRSTUVWXYZ' +
-               'abcdefghijklmnopqrstuvwxyz0123456789'):
+               letters=DEF_LETTERS):
                
         #message = message.upper()
         
@@ -120,3 +121,60 @@ class Encoder(object):
         return translated
         
     
+def brute_force(ciphertext):
+    """Caesar cipher cryptanalysis by brute force."""
+
+    e = Encoder()
+    for key in range(len(DEF_LETTERS)):
+        print("{} {}".format(key, e.caesar(ciphertext, key, False)))
+        
+
+class Transcipher(object):
+
+    def __init__(self):
+        pass
+        
+    def decrypt(self, c, key):
+    
+        #p = [''] * len(c)
+        #i = 0
+        #inc = 0
+        #for x in c:
+        #    p[i] = x
+        #    i += key
+        #    if i >= len(c):
+        #        inc += 1
+        #        i = inc
+                
+        p = []
+        i = 0
+        ik = 0
+        inc = 0
+        for x in c:
+            if len(p) == i:
+                p.append('')
+            p[i] += x
+            print(p)
+            i += 1
+            ik += key
+            if ik >= len(c):
+                i = 0
+                inc += 1
+                ik = inc
+                
+        return "".join(p)
+        
+    def encrypt(self, m, key):
+        e = [''] * key
+        for i in range(key):
+            col = 0
+            while i+col < len(m):
+                e[i] += m[i+col]
+                col += key
+                
+        for x in e: print(x)
+                
+        return "".join(e)
+        
+        
+
