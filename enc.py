@@ -128,51 +128,89 @@ def brute_force(ciphertext):
     for key in range(len(DEF_LETTERS)):
         print("{} {}".format(key, e.caesar(ciphertext, key, False)))
         
+        
+def transposition_decryption_algo(idiom=0):
+    
+    if idiom == 1:
+        def algo(c, key):
+            m = []
+            i = 0
+            ik = 0
+            inc = 0
+            for x in c:
+                if len(m) == i:
+                    m.append('')
+                m[i] += x
+                #print(m)
+                i += 1
+                ik += key
+                if ik >= len(c):
+                    i = 0
+                    inc += 1
+                    ik = inc
+                    
+            return "".join(m)
+            
+        return algo
+            
+    elif idiom == 2:
+    
+        def algo(c, key):
+            m = [None] * len(c)
+            i, l = 0, 0
+            for x in c:
+                m[i + key * l] = x
+                l += 1
+                if i + key * l >= len(c):
+                    l = 0
+                    i += 1
+                
+            return "".join(m)
+            
+        return algo
+        
+    else:
+    
+        def algo(c, key):
+            
+            m = [''] * len(c)
+            i = 0
+            inc = 0
+            for x in c:
+                m[i] = x
+                i += key
+                if i >= len(c):
+                    inc += 1
+                    i = inc
+                    
+            return "".join(m)
+            
+        return algo
+        
 
 class Transcipher(object):
 
     def __init__(self):
-        pass
+    
+        self.__decalgo = transposition_decryption_algo()
         
     def decrypt(self, c, key):
     
-        #p = [''] * len(c)
-        #i = 0
-        #inc = 0
-        #for x in c:
-        #    p[i] = x
-        #    i += key
-        #    if i >= len(c):
-        #        inc += 1
-        #        i = inc
-                
-        p = []
-        i = 0
-        ik = 0
-        inc = 0
-        for x in c:
-            if len(p) == i:
-                p.append('')
-            p[i] += x
-            print(p)
-            i += 1
-            ik += key
-            if ik >= len(c):
-                i = 0
-                inc += 1
-                ik = inc
-                
-        return "".join(p)
+        return self.__decalgo(c, key)
         
     def encrypt(self, m, key):
+    
         e = [''] * key
+        
         for i in range(key):
-            col = 0
-            while i+col < len(m):
-                e[i] += m[i+col]
+        
+            col = i
+            
+            while col < len(m):
+                e[i] += m[col]
                 col += key
                 
-        for x in e: print(x)
+        #for x in e: print(x)
                 
         return "".join(e)
         
