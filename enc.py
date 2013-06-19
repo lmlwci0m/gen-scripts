@@ -1,4 +1,4 @@
-from algoutils import tocharcode, caesar_enc
+from algoutils import tocharcode, caesar_enc, transposition_encryption_algo
 from algoutils import define_function_composition, transposition_decryption_algo
 
 CHSET = 'qwertyuiopasdf1029384756ghjklzxcvbnmMZNXBCVLAKSJDHFGPQOWIEURYT'
@@ -98,6 +98,7 @@ class Transcipher(object):
     def __init__(self, idiom=0):
     
         self.__decalgo = transposition_decryption_algo(idiom)
+        self.__encalgo = transposition_encryption_algo(idiom)
         
     def decrypt(self, c, key):
     
@@ -105,16 +106,4 @@ class Transcipher(object):
         
     def encrypt(self, m, key):
     
-        e = [''] * key
-        
-        for i in range(key):
-        
-            col = i
-            
-            while col < len(m):
-                e[i] += m[col]
-                col += key
-                
-        #for x in e: print(x)
-                
-        return "".join(e)
+        return self.__encalgo(m, key)

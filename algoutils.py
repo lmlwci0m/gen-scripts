@@ -41,6 +41,27 @@ def define_function_composition(idiom=0):
         return function_composition
         
         
+def transposition_encryption_algo(idiom=0):
+
+    def algo(m, key):
+
+        c = [''] * key
+        
+        for i in range(key):
+        
+            col = i
+            
+            while col < len(m):
+                c[i] += m[col]
+                col += key
+                
+        #for x in c: print(x)
+                
+        return "".join(c)
+        
+    return algo
+        
+        
 def transposition_decryption_algo(idiom=0):
     """Function generator for transposition decipher."""
     
