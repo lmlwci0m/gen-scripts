@@ -36,7 +36,7 @@ class Encoder(object):
             chr,
         )
         
-        self.transform = define_function_composition()
+        self.transform = define_function_composition(0)
         
     def enc(self, m):
     
@@ -95,9 +95,9 @@ def brute_force(ciphertext):
 
 class Transcipher(object):
 
-    def __init__(self):
+    def __init__(self, idiom=0):
     
-        self.__decalgo = transposition_decryption_algo()
+        self.__decalgo = transposition_decryption_algo(idiom)
         
     def decrypt(self, c, key):
     

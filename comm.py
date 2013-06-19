@@ -38,11 +38,11 @@ if __name__ == '__main__':
         #print(m)
         
         c = e.caesar(m)
-        brute_force(c)
+        #brute_force(c)
         m = e.caesar(c, encrypt=False)  
         #print(m)
         
-        e = Transcipher()
+        e = Transcipher(3)
         
         #c = Transcipher().encrypt("Common sense is not so common.", 8)
         c = e.encrypt(m, 8)

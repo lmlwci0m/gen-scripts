@@ -1,5 +1,6 @@
 from functools import reduce
 from functools import partial
+import math
 
 
 def tocharcode(cs):
@@ -12,11 +13,11 @@ def caesar_enc(key):
     
     
 def define_function_composition(idiom=0):
-    """Function generator for """
+    """Function generator for compositions."""
     
     if idiom == 1:
     
-        def function_composition(self, function_list, origin):
+        def function_composition(function_list, origin):
             destination = origin
             for index, func in enumerate(function_list):
                 destination = func(destination)
@@ -27,7 +28,7 @@ def define_function_composition(idiom=0):
     
     elif idiom == 2:
     
-        def function_composition(self, function_list, origin):
+        def function_composition(function_list, origin):
             destination = reduce(lambda x, y: y(x), function_list, origin)
             return destination
             
@@ -41,6 +42,7 @@ def define_function_composition(idiom=0):
         
         
 def transposition_decryption_algo(idiom=0):
+    """Function generator for transposition decipher."""
     
     if idiom == 1:
         def algo(c, key):
@@ -76,6 +78,27 @@ def transposition_decryption_algo(idiom=0):
                     l = 0
                     i += 1
                 
+            return "".join(m)
+            
+        return algo
+        
+    elif idiom == 3:
+    
+        def algo(c, key):
+        
+            columns, rows = math.ceil(len(c) / key), key
+            downrows = (columns * rows) - len(c)
+            
+            m = [''] * rows
+            col = 0
+            row = 0
+            for x in c:
+                m[col] += x
+                col += 1
+                if col > columns - 1 or (col == columns - 1 and row > rows - downrows):
+                    col = 0
+                    row += 1
+                    
             return "".join(m)
             
         return algo
