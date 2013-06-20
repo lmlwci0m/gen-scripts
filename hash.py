@@ -7,17 +7,19 @@ def hash(message):
     m.update(bytes("".join(message), "utf-8"))
     return m.hexdigest()
 
-def ahead(message, index, chars, selectedchar, messagelen):
+def ahead(message, index, chars, selectedchar, messagelen, file):
+
     message.append(selectedchar)
     
     index +=1
-    #print(index, messagelen)
+    
     if index == messagelen:
-        print("".join(message))
+        print("".join(message) + " " + hash(message), file=file)
+        
         
     else:
         for char in chars:
-            ahead(message, index, chars, char, messagelen)
+            ahead(message, index, chars, char, messagelen, file)
             
     message.pop()
 
@@ -27,11 +29,11 @@ if __name__ == '__main__':
 
     maxlen = 16
 
-    for x in range(1, maxlen+1):
-        message = []
-        
-        for char in basechars:
-            #print(x)
-            ahead(message, 0, basechars, char, x)
+    with open("output.txt", "a") as file:
+
+        for x in range(1, maxlen+1):
+            message = []
+            for char in basechars:
+                ahead(message, 0, basechars, char, x, file)
         
         
